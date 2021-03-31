@@ -1,3 +1,5 @@
+include(":domain")
+include(":data")
 pluginManagement {
     repositories {
         google()
@@ -13,7 +15,7 @@ includeBuild("includedBuild/gradleConfiguration")
 
 include(":app")
 include(":navigation")
-include(":feature:homescreen")
-include(":feature:profile")
+include(":feature:splash")
+include(":feature:auth")
 include(":core")
 include(":common-ui")

@@ -111,6 +111,7 @@ class GradleConfigurationPlugin : Plugin<Project> {
             if (moduleType == ModuleType.APP
                 || moduleType == ModuleType.FEATURE
                 || moduleType == ModuleType.CORE_UI
+                || moduleType == ModuleType.NAVIGATION
             ) {
                 apply(Deps.plugins.project.navigation_safe_args)
             }
@@ -138,6 +139,8 @@ class GradleConfigurationPlugin : Plugin<Project> {
 
                 }
 
+                configureFlavors(this, moduleType)
+
                 val proguardFile = "proguard-rules.pro"
                 when (this) {
                     is LibraryExtension -> defaultConfig {
@@ -164,6 +167,11 @@ class GradleConfigurationPlugin : Plugin<Project> {
         }
     }
 
+    private fun configureFlavors(extension: BaseExtension, moduleType: ModuleType) =
+        extension.apply {
+
+        }
+
     /**
      * Configures dependencies for module defined by [ModuleType]
      * @see ModuleType
@@ -174,19 +182,25 @@ class GradleConfigurationPlugin : Plugin<Project> {
         when (moduleType) {
             ModuleType.APP, ModuleType.FEATURE -> {
                 addAndroidDependencies(project)
-                addUiCoreDependency(project)
-                addAppFeatureDependencies(project)
-                addNavigationDependency(project)
+                addUiCoreModuleDependency(project)
+                addAppFeatureModulesDependencies(project)
+                addNavigationModuleDependency(project)
+                addDomainModuleDependency(project)
+                if (moduleType == ModuleType.APP)
+                    addDataModuleDependency(project)
             }
             ModuleType.CORE_UI -> {
                 addAndroidDependencies(project)
-                addNavigationDependency(project)
+                addNavigationModuleDependency(project)
             }
             ModuleType.NAVIGATION -> {
                 addAndroidDependencies(project)
             }
             ModuleType.DOMAIN -> addDomainDependencies(project)
-            ModuleType.DATA -> addDataDependencies(project)
+            ModuleType.DATA -> {
+                addDataDependencies(project)
+                addDomainModuleDependency(project)
+            }
         }
 
         if (moduleType != ModuleType.CORE && ProjectConfig.coreModuleName.isNotBlank()) {
@@ -210,6 +224,7 @@ class GradleConfigurationPlugin : Plugin<Project> {
             add(IMPL_TEST, Deps.test.junit)
             add(IMPL_TEST_ANDROID, Deps.android.androidx.test.junit_ext)
 
+            add(DESUGARING, Deps.android.tools.desugaring)
         }
     }
 
@@ -256,7 +271,6 @@ class GradleConfigurationPlugin : Plugin<Project> {
             add(IMPL, Deps.di.hilt.core)
             add(KAPT, Deps.di.hilt.kapt)
 
-            add(IMPL, Deps.android.androidx.appcompat)
 
             add(IMPL, Deps.android.androidx.preference)
 
@@ -288,7 +302,7 @@ class GradleConfigurationPlugin : Plugin<Project> {
     /**
      * Configures dependencies between project modules
      */
-    private fun addAppFeatureDependencies(project: Project) {
+    private fun addAppFeatureModulesDependencies(project: Project) {
         if (project.isAppModule && ProjectConfig.featureDirectoryName.isNotBlank()) {
             getAllFeatureProject(project).forEach { featureProject ->
                 println("add feature project: ${featureProject.name}")
@@ -308,7 +322,7 @@ class GradleConfigurationPlugin : Plugin<Project> {
         )
     }
 
-    private fun addUiCoreDependency(project: Project) {
+    private fun addUiCoreModuleDependency(project: Project) {
         checkNotNull(project.rootProject.subprojects.find { it.name == ProjectConfig.uiCoreModuleName }) { "Ui core project not found, check module name in ProjectConfig file" }
         project.dependencies.add(
             IMPL,
@@ -316,11 +330,27 @@ class GradleConfigurationPlugin : Plugin<Project> {
         )
     }
 
-    private fun addNavigationDependency(project: Project) {
+    private fun addNavigationModuleDependency(project: Project) {
         checkNotNull(project.rootProject.subprojects.find { it.name == ProjectConfig.navModuleName }) { "Navigation project not found, check module name in ProjectConfig file" }
         project.dependencies.add(
             IMPL,
             project.dependencies.project("path" to ":${ProjectConfig.navModuleName}")
+        )
+    }
+
+    private fun addDomainModuleDependency(project: Project) {
+        checkNotNull(project.rootProject.subprojects.find { it.name == ProjectConfig.domainModuleName }) { "Domain project not found, check module name in ProjectConfig file" }
+        project.dependencies.add(
+            IMPL,
+            project.dependencies.project("path" to ":${ProjectConfig.domainModuleName}")
+        )
+    }
+
+    private fun addDataModuleDependency(project: Project) {
+        checkNotNull(project.rootProject.subprojects.find { it.name == ProjectConfig.dataModuleName }) { "Data project not found, check module name in ProjectConfig file" }
+        project.dependencies.add(
+            IMPL,
+            project.dependencies.project("path" to ":${ProjectConfig.dataModuleName}")
         )
     }
 
@@ -340,6 +370,7 @@ class GradleConfigurationPlugin : Plugin<Project> {
         const val KAPT = "kapt"
         const val IMPL_TEST = "testImplementation"
         const val IMPL_TEST_ANDROID = "androidTestImplementation"
+        private const val DESUGARING = "coreLibraryDesugaring"
 
     }
 

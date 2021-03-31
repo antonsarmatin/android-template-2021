@@ -20,7 +20,7 @@ open class ModuleConfigurationExtension @Inject constructor(private val project:
         if (isAlreadyProcessed) return
 
         project.plugins.findPlugin(GradleConfigurationPlugin::class.java)?.let {
-            if(moduleType == ModuleType.NOT_CONF)
+            if (moduleType == ModuleType.NOT_CONF)
                 throw IllegalArgumentException("Module not configured with proper ModuleType")
             it.config(project, moduleType)
             isAlreadyProcessed = true

@@ -16,7 +16,12 @@ object ProjectConfig {
     const val uiCoreModuleName = "common-ui"
     //Название navigation модуля
     const val navModuleName = "navigation"
+    //Название domain модуля
+    const val domainModuleName = "domain"
+    //Название data модуля
+    const val dataModuleName = "data"
     //Директория в которой находятся фичовые модули
     const val featureDirectoryName = "feature"
+
 
 }
