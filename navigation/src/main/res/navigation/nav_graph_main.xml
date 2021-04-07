@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:startDestination="@id/nav_feature_splash"
+    android:id="@+id/nav_graph_main">
+
+    <include app:graph="@navigation/nav_feature_splash" />
+
+    <include app:graph="@navigation/nav_feature_auth" />
+
+
+    <action
+        android:id="@+id/action_global_nav_feature_splash"
+        app:destination="@id/nav_feature_splash"
+        app:popUpTo="@id/nav_graph_main" />
+
+    <action
+        android:id="@+id/action_global_nav_feature_auth"
+        app:destination="@id/nav_feature_auth"
+        app:popUpTo="@id/nav_graph_main" />
+
+
+</navigation>
